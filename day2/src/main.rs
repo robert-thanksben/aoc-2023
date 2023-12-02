@@ -27,11 +27,10 @@ fn part_1(input: &str) -> u32 {
 
     for cap in game_re.captures_iter(input) {
         let game_number: u32 = cap[1].parse().unwrap();
-        let content = &cap[2];
         let mut color_counts: HashMap<Color, u32> = HashMap::new();
         let mut update = true;
 
-        for color_cap in color_re.captures_iter(content) {
+        for color_cap in color_re.captures_iter(&cap[2]) {
             let count: u32 = color_cap[1].parse().unwrap();
             let color = Color::from_str(&color_cap[2]).unwrap();
             let entry = color_counts.entry(color).or_insert(count);
@@ -62,10 +61,9 @@ fn part_2(input: &str) -> u32 {
     let mut sum_power_set: u32 = 0;
 
     for cap in game_re.captures_iter(input) {
-        let content = &cap[2];
         let mut color_counts: HashMap<Color, u32> = HashMap::new();
 
-        for color_cap in color_re.captures_iter(content) {
+        for color_cap in color_re.captures_iter(&cap[2]) {
             let count: u32 = color_cap[1].parse().unwrap();
             let color = Color::from_str(&color_cap[2]).unwrap();
             let entry = color_counts.entry(color).or_insert(count);
