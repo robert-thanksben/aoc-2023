@@ -16,8 +16,8 @@ enum Color {
 lazy_static! {
     static ref INPUT: String = fs::read_to_string("input.txt").expect("Can't read input file");
     static ref CUBE_RX: HashMap<Color, u32> = HashMap::from([(Color::Red, 12), 
-                                                                       (Color::Green, 13), 
-                                                                       (Color::Blue, 14)]);
+                                                             (Color::Green, 13), 
+                                                             (Color::Blue, 14)]);
 }
 
 fn part_1(input: &str) -> u32 {
