@@ -35,6 +35,7 @@ fn part_1(input: &str) -> u32 {
         for (cc_key, cc_value) in color_counts.iter() {
             if max_cube_counts.get(cc_key as &str).unwrap() < cc_value {
                 update = false;
+                break;
             }
 
         }
@@ -51,7 +52,7 @@ fn part_2(input: &str) -> u32 {
     let game_re = Regex::new(r"Game (\d+): (.*)").unwrap();
     let color_re = Regex::new(r"(\d+) (red|green|blue)").unwrap();
 
-    let mut game_count: u32 = 0;
+    let mut sum_power_set: u32 = 0;
 
     for cap in game_re.captures_iter(input) {
         let content = &cap[2];
@@ -68,10 +69,10 @@ fn part_2(input: &str) -> u32 {
             }
         }
 
-        game_count += color_counts.values().product::<u32>();
+        sum_power_set += color_counts.values().product::<u32>();
     }
     
-    game_count
+    sum_power_set
 }
 
 fn main() {
