@@ -2,17 +2,22 @@ use std::fs;
 use regex::Regex;
 use aho_corasick::AhoCorasick;
 
+
+fn push_value(digits: &Vec<&str>, calibration_values: &mut Vec<u32>) {
+    if !digits.is_empty() {
+        let first_digit = digits.first().unwrap();
+        let last_digit = digits.last().unwrap();
+        calibration_values.push(format!("{first_digit}{last_digit}").parse::<u32>().unwrap());
+    }
+}
+
 fn part_1(input: &str) -> u32 {
     let re = Regex::new(r"\d").unwrap();
     let mut calibration_values: Vec<u32> = Vec::new();
 
     for line in input.split("\n") {
         let digits: Vec<&str> = re.find_iter(line).map(|d| d.as_str()).collect();
-        
-        if !digits.is_empty() {
-            let calibration_value = format!("{}{}", digits.first().unwrap(), digits.last().unwrap());
-            calibration_values.push(calibration_value.parse::<u32>().unwrap());
-        }
+        push_value(&digits, &mut calibration_values);
     }
 
     calibration_values.iter().sum()
@@ -47,10 +52,7 @@ fn part_2(input: &str) -> u32 {
             digits.push(converted_digit);
         }
 
-        if !digits.is_empty() {
-            let calibration_value = format!("{}{}", digits.first().unwrap(), digits.last().unwrap());
-            calibration_values.push(calibration_value.parse::<u32>().unwrap());
-        }
+        push_value(&digits, &mut calibration_values);
     }
 
     calibration_values.iter().sum()
@@ -66,20 +68,15 @@ fn main() {
     println!("Part 2: {}", result_2);
 }
 
-#[cfg(test)]
-mod tests {
-    use std::fs;
-    use super::*;
-
-    #[test]
-    fn test_part_1() {
-        let input = fs::read_to_string("input.txt").expect("Can't read file");
-        assert_eq!(part_1(&input), 54634);
-    }
-
-    #[test]
-    fn test_part_2() {
-        let input = fs::read_to_string("input.txt").expect("Can't read file");
-        assert_eq!(part_2(&input), 53855);
-    }
+#[test]
+fn test_part_1() {
+    let input = fs::read_to_string("input.txt").expect("Can't read file");
+    assert_eq!(part_1(&input), 54634);
 }
+
+#[test]
+fn test_part_2() {
+    let input = fs::read_to_string("input.txt").expect("Can't read file");
+    assert_eq!(part_2(&input), 53855);
+}
+
