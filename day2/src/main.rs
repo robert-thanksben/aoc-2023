@@ -22,24 +22,30 @@ lazy_static! {
                                                              (Color::Blue, 14)]);
 }
 
+fn count_colors(cube_data: &str) -> HashMap<Color, u32> {
+    let mut color_counts: HashMap<Color, u32> = HashMap::new();
+    
+    for color_cap in COLOR_RE.captures_iter(cube_data) {
+        let count: u32 = color_cap[1].parse().unwrap();
+        let color = Color::from_str(&color_cap[2]).unwrap();
+        let entry = color_counts.entry(color).or_insert(count);
+
+        if *entry < count {
+            *entry = count;
+        }
+    }
+
+    color_counts
+}
+
 fn part_1(input: &str) -> u32 {
     let mut game_count = 0;
 
     for cap in GAME_RE.captures_iter(input) {
         let game_number: u32 = cap[1].parse().unwrap();
-        let mut color_counts: HashMap<Color, u32> = HashMap::new();
+        let color_counts = count_colors(&cap[2]);
         let mut update = true;
 
-        for color_cap in COLOR_RE.captures_iter(&cap[2]) {
-            let count: u32 = color_cap[1].parse().unwrap();
-            let color = Color::from_str(&color_cap[2]).unwrap();
-            let entry = color_counts.entry(color).or_insert(count);
-
-            if *entry < count {
-                *entry = count;
-            }
-        }
-        
         for (cc_key, cc_value) in color_counts.iter() {
             if CUBE_RX.get(&cc_key).unwrap() < cc_value {
                 update = false;
@@ -59,18 +65,7 @@ fn part_2(input: &str) -> u32 {
     let mut sum_power_set: u32 = 0;
 
     for cap in GAME_RE.captures_iter(input) {
-        let mut color_counts: HashMap<Color, u32> = HashMap::new();
-
-        for color_cap in COLOR_RE.captures_iter(&cap[2]) {
-            let count: u32 = color_cap[1].parse().unwrap();
-            let color = Color::from_str(&color_cap[2]).unwrap();
-            let entry = color_counts.entry(color).or_insert(count);
-
-            if *entry < count {
-                *entry = count;
-            }
-        }
-
+        let color_counts = count_colors(&cap[2]);
         sum_power_set += color_counts.values().product::<u32>();
     }
     
