@@ -3,11 +3,13 @@ use regex::Regex;
 use aho_corasick::AhoCorasick;
 
 
-fn push_value(digits: &Vec<&str>, calibration_values: &mut Vec<u32>) {
+fn push_value(calibration_values: &mut Vec<u32>, digits: &Vec<&str>) {
     if !digits.is_empty() {
         let first_digit = digits.first().unwrap();
         let last_digit = digits.last().unwrap();
-        calibration_values.push(format!("{first_digit}{last_digit}").parse::<u32>().unwrap());
+        let value = format!("{first_digit}{last_digit}").parse::<u32>().unwrap();
+
+        calibration_values.push(value);
     }
 }
 
@@ -17,7 +19,7 @@ fn part_1(input: &str) -> u32 {
 
     for line in input.split("\n") {
         let digits: Vec<&str> = re.find_iter(line).map(|d| d.as_str()).collect();
-        push_value(&digits, &mut calibration_values);
+        push_value(&mut calibration_values, &digits);
     }
 
     calibration_values.iter().sum()
@@ -33,8 +35,8 @@ fn part_2(input: &str) -> u32 {
     for line in input.split("\n") {
         let mut digits: Vec<&str> = Vec::new();
 
-        for m in ac.find_overlapping_iter(line) {
-            let matched_digit: &str = patterns.get(m.pattern().as_usize()).unwrap();
+        for matched in ac.find_overlapping_iter(line) {
+            let matched_digit: &str = patterns.get(matched.pattern().as_usize()).unwrap();
 
             let converted_digit = match matched_digit {
                 "one" => Some("1"),
@@ -52,7 +54,7 @@ fn part_2(input: &str) -> u32 {
             digits.push(converted_digit);
         }
 
-        push_value(&digits, &mut calibration_values);
+        push_value(&mut calibration_values, &digits);
     }
 
     calibration_values.iter().sum()
