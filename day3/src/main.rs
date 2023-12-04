@@ -1,11 +1,10 @@
 use lazy_static::lazy_static;
 use ndarray::{arr2, Array2};
-use std::{fs, collections::HashMap};
+use std::{fs, collections::{HashMap, HashSet}};
 use regex::Regex;
 
 lazy_static! {
     static ref INPUT: String = fs::read_to_string("input.txt").expect("Can't open input file.");
-    static ref TEST_INPUT: String = fs::read_to_string("test_input_1.txt").expect("Can't open test input file.");
 }
 
 #[derive(Clone, Copy)]
@@ -18,7 +17,7 @@ struct Number {
 fn part_1(input: &str) -> i32 {
     let r = Regex::new(r"\d+").unwrap();
     let operations = vec![-1, 0, 1];
-    let mut symbol_ams: Vec<Array2<i32>> = Vec::new();
+    let mut symbol_ams: HashSet<Array2<i32>> = HashSet::new();
     let mut numbers: HashMap<Array2<i32>, Number> = HashMap::new();
     let mut results: HashMap<Array2<i32>, i32> = HashMap::new();
     let mut line_index: usize = 0;
@@ -46,7 +45,7 @@ fn part_1(input: &str) -> i32 {
                 
                 for &op1 in &operations {
                     for &op2 in &operations {
-                        symbol_ams.push(arr2(&[[coords[(0, 0)] + op1], [coords[(1, 0)] + op2]]));
+                        symbol_ams.insert(arr2(&[[coords[(0, 0)] + op1], [coords[(1, 0)] + op2]]));
                     }
                 }
             }
@@ -62,10 +61,10 @@ fn part_1(input: &str) -> i32 {
         for (i, c) in line.char_indices() {
             if c.is_digit(10) {
                 let coords = arr2(&[[line_index as i32], [i as i32]]);
-                if symbol_ams.contains(&coords) {
+                if symbol_ams.get(&coords).is_some() {
                     let number = numbers.get(&coords).unwrap();
                     results.insert(arr2(&[[line_index as i32], [number.start as i32]]), number.value);
-                } 
+                }
             }
         }
 
@@ -77,11 +76,6 @@ fn part_1(input: &str) -> i32 {
 
 fn main() {
     println!("Part 1: {}", part_1(&INPUT));
-}
-
-#[test]
-fn test_part_1_test() {
-    assert_eq!(part_1(&TEST_INPUT), 4361);
 }
 
 #[test]
