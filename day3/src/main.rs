@@ -16,14 +16,15 @@ struct Number {
 }
 
 fn part_1(input: &str) -> i32 {
-    let operations = vec![-1, 0, 1];
-    let mut variations: Vec<Array2<i32>> = Vec::new();
-    let mut line_index: usize = 0;
     let r = Regex::new(r"\d+").unwrap();
+    let operations = vec![-1, 0, 1];
+    let mut symbol_ams: Vec<Array2<i32>> = Vec::new();
     let mut numbers: HashMap<Array2<i32>, Number> = HashMap::new();
     let mut results: HashMap<Array2<i32>, i32> = HashMap::new();
+    let mut line_index: usize = 0;
 
     for line in input.lines() {
+        // Map out all coordinates for all numbers
         for cap in r.captures_iter(line) {
             let cap = cap.get(0).unwrap();
             let number = Number {
@@ -33,19 +34,19 @@ fn part_1(input: &str) -> i32 {
             };
             
             for i in number.start..number.end {
-                let coordinates = arr2(&[[line_index as i32], [i as i32]]);
-                numbers.insert(coordinates, number);
+                let coords = arr2(&[[line_index as i32], [i as i32]]);
+                numbers.insert(coords, number);
             }
         }
 
+        // Map out all coordinates for all symbol adjacency matrices
         for (i, c) in line.char_indices() {
             if !c.is_digit(10) && c != '.' {
-                let coordinates = arr2(&[[line_index as i32], [i as i32]]);
+                let coords = arr2(&[[line_index as i32], [i as i32]]);
                 
                 for &op1 in &operations {
                     for &op2 in &operations {
-                        let variation = arr2(&[[coordinates[(0, 0)] + op1], [coordinates[(1, 0)] + op2]]);
-                        variations.push(variation);
+                        symbol_ams.push(arr2(&[[coords[(0, 0)] + op1], [coords[(1, 0)] + op2]]));
                     }
                 }
             }
@@ -55,12 +56,14 @@ fn part_1(input: &str) -> i32 {
     }
 
     line_index = 0;
+    // Add numbers to results by checking 
+    // if any digit of the number is within the symbol adjacency matrix
     for line in input.lines() {
         for (i, c) in line.char_indices() {
             if c.is_digit(10) {
-                let coordinates = arr2(&[[line_index as i32], [i as i32]]);
-                if variations.contains(&coordinates) {
-                    let number = numbers.get(&coordinates).unwrap();
+                let coords = arr2(&[[line_index as i32], [i as i32]]);
+                if symbol_ams.contains(&coords) {
+                    let number = numbers.get(&coords).unwrap();
                     results.insert(arr2(&[[line_index as i32], [number.start as i32]]), number.value);
                 } 
             }
