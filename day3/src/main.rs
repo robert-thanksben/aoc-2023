@@ -1,20 +1,43 @@
 use lazy_static::lazy_static;
 use ndarray::{arr2, Array2};
-use std::fs;
+use std::{fs, collections::HashMap};
+use regex::Regex;
 
 lazy_static! {
     static ref INPUT: String = fs::read_to_string("input.txt").expect("Can't open input file.");
-    static ref TEST_INPUT: String =
-        fs::read_to_string("test_input_1.txt").expect("Can't open test input file.");
+    static ref TEST_INPUT: String = fs::read_to_string("test_input_1.txt").expect("Can't open test input file.");
+}
+
+#[derive(Clone, Copy)]
+struct Number {
+    start: usize,
+    end: usize,
+    value: i32
 }
 
 fn part_1(input: &str) -> i32 {
     let operations = vec![-1, 0, 1];
     let mut variations: Vec<Array2<i32>> = Vec::new();
     let mut line_index: usize = 0;
-    // let mut numbers: Vec<u32> = Vec::new();
+    let r = Regex::new(r"\d+").unwrap();
+    let mut numbers: HashMap<Array2<i32>, Number> = HashMap::new();
+    let mut results: HashMap<Array2<i32>, i32> = HashMap::new();
 
     for line in input.lines() {
+        for cap in r.captures_iter(line) {
+            let cap = cap.get(0).unwrap();
+            let number = Number {
+                start: cap.start(), 
+                end: cap.end(), 
+                value: cap.as_str().parse().unwrap()
+            };
+            
+            for i in number.start..number.end {
+                let coordinates = arr2(&[[line_index as i32], [i as i32]]);
+                numbers.insert(coordinates, number);
+            }
+        }
+
         for (i, c) in line.char_indices() {
             if !c.is_digit(10) && c != '.' {
                 let coordinates = arr2(&[[line_index as i32], [i as i32]]);
@@ -37,7 +60,8 @@ fn part_1(input: &str) -> i32 {
             if c.is_digit(10) {
                 let coordinates = arr2(&[[line_index as i32], [i as i32]]);
                 if variations.contains(&coordinates) {
-                    println!("[{line_index}, {i}] = {c}");
+                    let number = numbers.get(&coordinates).unwrap();
+                    results.insert(arr2(&[[line_index as i32], [number.start as i32]]), number.value);
                 } 
             }
         }
@@ -45,7 +69,7 @@ fn part_1(input: &str) -> i32 {
         line_index += 1;
     }
 
-    7
+    results.values().sum()
 }
 
 fn main() {
@@ -53,6 +77,11 @@ fn main() {
 }
 
 #[test]
-fn test_part_1() {
+fn test_part_1_test() {
     assert_eq!(part_1(&TEST_INPUT), 4361);
+}
+
+#[test]
+fn test_part_1() {
+    assert_eq!(part_1(&INPUT), 550934);
 }
