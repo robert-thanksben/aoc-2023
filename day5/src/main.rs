@@ -99,8 +99,8 @@ fn part_1(input: &str) -> i64 {
 
 fn part_2(input: &str) -> i64 {
     let (seeds, maps) = parse_data(&input);
-    let mut locations: Vec<i64> = Vec::new();
     let mut seed_ranges: Vec<SeedRange> = Vec::new();
+    let mut lowest_location: i64 = i64::MAX;
 
     for seed_chunks in seeds.chunks_exact(2) {
         seed_ranges.push(SeedRange { start: seed_chunks[0], length: seed_chunks[1] });
@@ -127,12 +127,14 @@ fn part_2(input: &str) -> i64 {
 
                 source = destination;
             }
-
-            locations.push(destination);
+            
+            if destination < lowest_location {
+                lowest_location = destination;
+            }
         }
     }
 
-    *locations.iter().min().unwrap()
+    lowest_location
 }
 
 
